@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS "counter";
+DROP TABLE IF EXISTS "widget";
+DROP TABLE IF EXISTS "user";
+
