@@ -66,10 +66,10 @@ func TestUpdateWidget(t *testing.T) {
 func TestDeleteWidget(t *testing.T) {
 	widget1 := createRandomWidget(t)
 
-	err := testQueries.DeleteUser(context.Background(), widget1.ID)
+	err := testQueries.DeleteWidget(context.Background(), widget1.ID)
 	require.NoError(t, err)
 
-	widget2, err := testQueries.GetUser(context.Background(), widget1.ID)
+	widget2, err := testQueries.GetWidget(context.Background(), widget1.ID)
 
 	require.Error(t, err)
 	require.EqualError(t, err, sql.ErrNoRows.Error())

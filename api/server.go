@@ -6,11 +6,11 @@ import (
 )
 
 type Server struct {
-	store  *db.Store
+	store  db.Store
 	router *gin.Engine
 }
 
-func NewServer(store *db.Store) *Server {
+func NewServer(store db.Store) *Server {
 	server := &Server{
 		store: store,
 	}
@@ -19,6 +19,7 @@ func NewServer(store *db.Store) *Server {
 	// Routes begin
 	router.POST("/users", server.createUser)
 	router.GET("/users/:id", server.getUser)
+	router.GET("/users", server.listUsers)
 
 	// Routes end
 
