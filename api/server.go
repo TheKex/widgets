@@ -18,6 +18,7 @@ func NewServer(store *db.Store) *Server {
 
 	// Routes begin
 	router.POST("/users", server.createUser)
+	router.GET("/users/:id", server.getUser)
 
 	// Routes end
 
@@ -27,4 +28,8 @@ func NewServer(store *db.Store) *Server {
 
 func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
+}
+
+func (server *Server) Start(address string) error {
+	return server.router.Run(address)
 }

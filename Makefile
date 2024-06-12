@@ -1,4 +1,4 @@
-.PHONY: postgres create-db drop-db migrate-up migrate-down sqlc
+.PHONY: postgres create-db drop-db migrate-up migrate-down sqlc test server
 
 DB_IMAGE = postgres:12-alpine
 DB_CONTAINER = postgres12
@@ -28,3 +28,6 @@ sqlc:
 
 test:
 	go test -v -cover ./...
+
+server:
+	go run main.go
