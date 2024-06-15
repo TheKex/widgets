@@ -1,4 +1,4 @@
-.PHONY: postgres create-db drop-db migrate-up migrate-down sqlc test server
+.PHONY: postgres create-db drop-db migrate-up migrate-down sqlc test server mock
 
 DB_IMAGE = postgres:12-alpine
 DB_CONTAINER = postgres12
@@ -31,3 +31,6 @@ test:
 
 server:
 	go run main.go
+
+mock:
+	mockgen -package mock_db -source="db/sqlc/store.go" -destination="db/mock/store.go"

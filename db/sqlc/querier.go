@@ -17,13 +17,14 @@ type Querier interface {
 	DeleteWidget(ctx context.Context, id int64) error
 	GetCounter(ctx context.Context, id int64) (Counter, error)
 	GetUser(ctx context.Context, id int64) (User, error)
+	GetUserByUsername(ctx context.Context, username string) (User, error)
 	GetWidget(ctx context.Context, id int64) (Widget, error)
 	ListCounters(ctx context.Context, arg ListCountersParams) ([]Counter, error)
 	ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error)
 	ListWidgets(ctx context.Context, arg ListWidgetsParams) ([]Widget, error)
 	UpdateCounter(ctx context.Context, arg UpdateCounterParams) (Counter, error)
 	UpdateCounterValue(ctx context.Context, arg UpdateCounterValueParams) (Counter, error)
-	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
+	UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) (User, error)
 	UpdateWidget(ctx context.Context, arg UpdateWidgetParams) (Widget, error)
 }
 

@@ -6,11 +6,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	db "widgets/db/sqlc"
+	"widgets/util"
 )
 
 type CreateUserRequest struct {
-	Name  string `json:"name" binding:"required"`
-	Email string `json:"email" binding:"omitempty,email"`
+	Username string `json:"name" binding:"required"`
+	Password string `json:"password" binding:"required,min=6"`
+	FullName string `json:"fullName" binding:"required"`
+	Email    string `json:"email" binding:"omitempty,email"`
 }
 
 func (server *Server) createUser(ctx *gin.Context) {
@@ -20,9 +23,16 @@ func (server *Server) createUser(ctx *gin.Context) {
 		return
 	}
 
+	hashedPassword, err := util.HashPassword(req.Password)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+
 	arg := db.CreateUserParams{
-		Name:  req.Name,
-		Email: sql.NullString{String: req.Email, Valid: len(req.Email) > 0},
+		Username:       req.Username,
+		HashedPassword: hashedPassword,
+		FullName:       req.FullName,
+		Email:          req.Email,
 	}
 
 	user, err := server.store.CreateUser(ctx, arg)
@@ -57,7 +67,6 @@ func (server *Server) getUser(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, user)
-
 }
 
 type listUsersRequest struct {

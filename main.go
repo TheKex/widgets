@@ -8,6 +8,7 @@ import (
 	"widgets/util"
 
 	_ "github.com/lib/pq"
+	_ "go.uber.org/mock/mockgen/model"
 )
 
 func main() {
