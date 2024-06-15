@@ -101,7 +101,7 @@ func (q *Queries) ListCounters(ctx context.Context, arg ListCountersParams) ([]C
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Counter
+	items := []Counter{}
 	for rows.Next() {
 		var i Counter
 		if err := rows.Scan(

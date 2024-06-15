@@ -88,7 +88,7 @@ func (q *Queries) ListWidgets(ctx context.Context, arg ListWidgetsParams) ([]Wid
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Widget
+	items := []Widget{}
 	for rows.Next() {
 		var i Widget
 		if err := rows.Scan(
