@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 	mock_db "widgets/db/mock"
 	db "widgets/db/sqlc"
 	"widgets/util"
@@ -32,10 +33,16 @@ func requireBodyMatchUser(t *testing.T, body *bytes.Buffer, user db.User) {
 	data, err := io.ReadAll(body)
 	require.NoError(t, err)
 
-	var gotUser db.User
+	var gotUser UserResponse
 	err = json.Unmarshal(data, &gotUser)
 	require.NoError(t, err)
-	require.Equal(t, user, gotUser)
+
+	require.Equal(t, user.ID, gotUser.ID)
+	require.Equal(t, user.Username, gotUser.Username)
+	require.Equal(t, user.Email, gotUser.Email)
+	require.Equal(t, user.FullName, gotUser.FullName)
+	require.WithinDuration(t, user.CreatedAt, gotUser.CreatedAt, time.Second)
+	require.WithinDuration(t, user.PasswordChangedAt, gotUser.PasswordCreatedAt, time.Second)
 }
 
 func TestGetUserAPI(t *testing.T) {

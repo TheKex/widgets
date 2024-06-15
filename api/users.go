@@ -4,16 +4,27 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 	"net/http"
+	"time"
 	db "widgets/db/sqlc"
 	"widgets/util"
 )
 
 type CreateUserRequest struct {
-	Username string `json:"name" binding:"required"`
+	Username string `json:"name" binding:"required,alphanum"`
 	Password string `json:"password" binding:"required,min=6"`
 	FullName string `json:"fullName" binding:"required"`
 	Email    string `json:"email" binding:"omitempty,email"`
+}
+
+type UserResponse struct {
+	ID                int64     `json:"id"`
+	Username          string    `json:"username"`
+	FullName          string    `json:"fullName"`
+	Email             string    `json:"email"`
+	PasswordCreatedAt time.Time `json:"passwordCreatedAt"`
+	CreatedAt         time.Time `json:"createdAt"`
 }
 
 func (server *Server) createUser(ctx *gin.Context) {
@@ -25,7 +36,17 @@ func (server *Server) createUser(ctx *gin.Context) {
 
 	hashedPassword, err := util.HashPassword(req.Password)
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			switch pqErr.Code.Name() {
+			case "unique_violation":
+				ctx.JSON(http.StatusForbidden, errorResponse(err))
+				return
+
+			}
+
+		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	arg := db.CreateUserParams{
@@ -41,7 +62,15 @@ func (server *Server) createUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, user)
+	rsp := UserResponse{
+		ID:                user.ID,
+		Username:          user.Username,
+		FullName:          user.FullName,
+		Email:             user.Email,
+		PasswordCreatedAt: user.PasswordChangedAt,
+		CreatedAt:         user.CreatedAt,
+	}
+	ctx.JSON(http.StatusOK, rsp)
 }
 
 type getUserRequest struct {
@@ -66,7 +95,16 @@ func (server *Server) getUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, user)
+	rsp := UserResponse{
+		ID:                user.ID,
+		Username:          user.Username,
+		FullName:          user.FullName,
+		Email:             user.Email,
+		PasswordCreatedAt: user.PasswordChangedAt,
+		CreatedAt:         user.CreatedAt,
+	}
+
+	ctx.JSON(http.StatusOK, rsp)
 }
 
 type listUsersRequest struct {
@@ -92,5 +130,17 @@ func (server *Server) listUsers(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, users)
+	rsp := []UserResponse{}
+	for _, user := range users {
+		rspUser := UserResponse{
+			ID:                user.ID,
+			Username:          user.Username,
+			FullName:          user.FullName,
+			Email:             user.Email,
+			PasswordCreatedAt: user.PasswordChangedAt,
+			CreatedAt:         user.CreatedAt,
+		}
+		rsp = append(rsp, rspUser)
+	}
+	ctx.JSON(http.StatusOK, rsp)
 }
